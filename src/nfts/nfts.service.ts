@@ -3,44 +3,40 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-20 00:54:16
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-20 01:01:41
+ * @LastEditTime: 2024-08-20 04:11:00
  */
 import { Injectable } from '@nestjs/common';
-
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Nft } from './nfts.schema';
+import { CreateNftDto } from './dto/create-nft.dto';
 @Injectable()
 export class NftService {
-  // 这里可以从数据库或静态文件中读取数据
-  getRecommendNfts() {
-    return [
-      {
-        id: 1,
-        name: 'NFT 1',
-        imageUrl: '/images/nft1.png',
-        description: 'Description 1',
-      },
-      {
-        id: 2,
-        name: 'NFT 2',
-        imageUrl: '/images/nft2.png',
-        description: 'Description 2',
-      },
-    ];
+  constructor(@InjectModel('Nft') private readonly nftModel: Model<Nft>) {}
+
+  async getRecommendNfts(): Promise<Nft[]> {
+    return this.nftModel.find({ recommanded: true }).exec();
+  }
+  async getNotableNfts(): Promise<Nft[]> {
+    return this.nftModel.find({ notable: true }).exec();
+  }
+  async createNft(createNftDto: CreateNftDto): Promise<Nft> {
+    const newNft = new this.nftModel(createNftDto);
+    return await newNft.save();
+  }
+  async findAllNfts(): Promise<Nft[]> {
+    return await this.nftModel.find().exec();
   }
 
-  getNotableNfts() {
-    return [
-      {
-        id: 3,
-        name: 'NFT 3',
-        imageUrl: '/images/nft3.png',
-        description: 'Description 3',
-      },
-      {
-        id: 4,
-        name: 'NFT 4',
-        imageUrl: '/images/nft4.png',
-        description: 'Description 4',
-      },
-    ];
+  async findOneNft(id: string): Promise<Nft> {
+    return await this.nftModel.findById(id).exec();
+  }
+  async updateNft(id: string, updateNftDto: CreateNftDto): Promise<Nft> {
+    return await this.nftModel
+      .findByIdAndUpdate(id, updateNftDto, { new: true })
+      .exec();
+  }
+  async deleteNft(id: string): Promise<Nft> {
+    return await this.nftModel.findByIdAndDelete(id).exec();
   }
 }
