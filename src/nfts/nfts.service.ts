@@ -3,40 +3,59 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-20 00:54:16
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-20 04:11:00
+ * @LastEditTime: 2024-08-22 01:09:27
  */
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Nft } from './nfts.schema';
+import { Nft } from './nfts.model';
 import { CreateNftDto } from './dto/create-nft.dto';
+import { UpdateNftDto } from './dto/update-nft.dto';
+
 @Injectable()
-export class NftService {
+export class NftsService {
   constructor(@InjectModel('Nft') private readonly nftModel: Model<Nft>) {}
 
-  async getRecommendNfts(): Promise<Nft[]> {
-    return this.nftModel.find({ recommanded: true }).exec();
-  }
-  async getNotableNfts(): Promise<Nft[]> {
-    return this.nftModel.find({ notable: true }).exec();
-  }
-  async createNft(createNftDto: CreateNftDto): Promise<Nft> {
+  async create(createNftDto: CreateNftDto): Promise<Nft> {
     const newNft = new this.nftModel(createNftDto);
     return await newNft.save();
   }
-  async findAllNfts(): Promise<Nft[]> {
-    return await this.nftModel.find().exec();
-  }
 
-  async findOneNft(id: string): Promise<Nft> {
-    return await this.nftModel.findById(id).exec();
-  }
-  async updateNft(id: string, updateNftDto: CreateNftDto): Promise<Nft> {
-    return await this.nftModel
+  // async findAll(): Promise<Nft[]> {
+  //   return await this.nftModel.find().exec();
+  // }
+
+  // async findOne(id: string): Promise<Nft> {
+  //   const nft = await this.nftModel.findById(id).exec();
+  //   if (!nft) {
+  //     throw new NotFoundException(`NFT with ID ${id} not found`);
+  //   }
+  //   return nft;
+  // }
+
+  async update(id: string, updateNftDto: UpdateNftDto): Promise<Nft> {
+    const existingNft = await this.nftModel
       .findByIdAndUpdate(id, updateNftDto, { new: true })
       .exec();
+    if (!existingNft) {
+      throw new NotFoundException(`NFT with ID ${id} not found`);
+    }
+    return existingNft;
   }
-  async deleteNft(id: string): Promise<Nft> {
-    return await this.nftModel.findByIdAndDelete(id).exec();
+
+  async remove(id: string): Promise<void> {
+    const result = await this.nftModel.findByIdAndDelete(id).exec();
+    if (!result) {
+      throw new NotFoundException(`NFT with ID ${id} not found`);
+    }
+  }
+
+  async findRecommanded(): Promise<Nft[]> {
+    return await this.nftModel.find({ recommanded: true }).exec();
+  }
+
+  // 获取 notable 为 true 的 NFT 列表
+  async findNotable(): Promise<Nft[]> {
+    return await this.nftModel.find({ notable: true }).exec();
   }
 }

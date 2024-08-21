@@ -3,7 +3,7 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-20 00:58:15
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-20 03:52:25
+ * @LastEditTime: 2024-08-21 18:36:13
  */
 /*
  * @Describle:
@@ -14,13 +14,13 @@
  */
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { NftSchema } from './nfts.schema';
-import { NftController } from './nfts.controller';
-import { NftService } from './nfts.service';
+import { NftSchema } from './nfts.model';
+import { NftsController } from './nfts.controller';
+import { NftsService } from './nfts.service';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'Nft', schema: NftSchema }])],
-  controllers: [NftController],
-  providers: [NftService],
+  controllers: [NftsController],
+  providers: [NftsService],
 })
 export class NftModule {}

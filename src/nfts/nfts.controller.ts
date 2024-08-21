@@ -3,54 +3,62 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-20 00:56:34
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-20 04:08:34
+ * @LastEditTime: 2024-08-22 01:09:43
  */
 import {
   Controller,
   Get,
   Post,
-  Put,
-  Delete,
   Body,
   Param,
+  Delete,
+  Put,
 } from '@nestjs/common';
-import { NftService } from './nfts.service';
+import { NftsService } from './nfts.service';
 import { CreateNftDto } from './dto/create-nft.dto';
-import { Nft } from './nfts.schema';
-@Controller('nfts')
-export class NftController {
-  constructor(private readonly nftService: NftService) {}
+import { UpdateNftDto } from './dto/update-nft.dto';
+import { Nft } from './nfts.model';
 
-  @Get('recommend')
-  getRecommendNfts(): Promise<Nft[]> {
-    return this.nftService.getRecommendNfts(); // 返回推荐的 NFT 列表
-  }
+@Controller('nfts')
+export class NftsController {
+  constructor(private readonly nftsService: NftsService) {}
 
   @Post()
-  createNft(@Body() createNftDto: CreateNftDto): Promise<Nft> {
-    return this.nftService.createNft(createNftDto);
+  async create(@Body() createNftDto: CreateNftDto): Promise<Nft> {
+    return await this.nftsService.create(createNftDto);
   }
 
-  @Get()
-  findAllNfts(): Promise<Nft[]> {
-    return this.nftService.findAllNfts();
-  }
+  // @Get()
+  // async findAll(): Promise<Nft[]> {
+  //   return await this.nftsService.findAll();
+  // }
 
-  @Get(':id')
-  findOneNft(@Param('id') id: string): Promise<Nft> {
-    return this.nftService.findOneNft(id);
-  }
+  // @Get(':id')
+  // async findOne(@Param('id') id: string): Promise<Nft> {
+  //   return await this.nftsService.findOne(id);
+  // }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
-    @Body() updateNftDto: CreateNftDto,
+    @Body() updateNftDto: UpdateNftDto,
   ): Promise<Nft> {
-    return this.nftService.updateNft(id, updateNftDto);
+    return await this.nftsService.update(id, updateNftDto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string): Promise<Nft> {
-    return this.nftService.deleteNft(id);
+  async remove(@Param('id') id: string): Promise<void> {
+    return await this.nftsService.remove(id);
+  }
+
+  @Get('recommanded')
+  async getRecommandedNfts(): Promise<Nft[]> {
+    return await this.nftsService.findRecommanded();
+  }
+
+  // 获取 notable 为 true 的 NFT 列表
+  @Get('notable')
+  async getNotableNfts(): Promise<Nft[]> {
+    return await this.nftsService.findNotable();
   }
 }
