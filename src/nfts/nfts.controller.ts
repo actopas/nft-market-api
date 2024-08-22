@@ -3,7 +3,7 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-20 00:56:34
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-22 01:09:43
+ * @LastEditTime: 2024-08-23 00:52:03
  */
 import {
   Controller,
@@ -22,21 +22,30 @@ import { Nft } from './nfts.model';
 @Controller('nfts')
 export class NftsController {
   constructor(private readonly nftsService: NftsService) {}
+  @Get('recommanded')
+  async getRecommandedNfts(): Promise<Nft[]> {
+    return await this.nftsService.findRecommanded();
+  }
+
+  @Get('notable')
+  async getNotableNfts(): Promise<Nft[]> {
+    return await this.nftsService.findNotable();
+  }
 
   @Post()
   async create(@Body() createNftDto: CreateNftDto): Promise<Nft> {
     return await this.nftsService.create(createNftDto);
   }
 
-  // @Get()
-  // async findAll(): Promise<Nft[]> {
-  //   return await this.nftsService.findAll();
-  // }
+  @Get()
+  async findAll(): Promise<Nft[]> {
+    return await this.nftsService.findAll();
+  }
 
-  // @Get(':id')
-  // async findOne(@Param('id') id: string): Promise<Nft> {
-  //   return await this.nftsService.findOne(id);
-  // }
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<Nft> {
+    return await this.nftsService.findOne(id);
+  }
 
   @Put(':id')
   async update(
@@ -49,16 +58,5 @@ export class NftsController {
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<void> {
     return await this.nftsService.remove(id);
-  }
-
-  @Get('recommanded')
-  async getRecommandedNfts(): Promise<Nft[]> {
-    return await this.nftsService.findRecommanded();
-  }
-
-  // 获取 notable 为 true 的 NFT 列表
-  @Get('notable')
-  async getNotableNfts(): Promise<Nft[]> {
-    return await this.nftsService.findNotable();
   }
 }
