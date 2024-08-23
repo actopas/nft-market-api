@@ -6,4 +6,4 @@ import { UploadService } from './upload.service';
   controllers: [UploadController], // 注册控制器
   providers: [UploadService], // 注册服务
 })
-export class Upload {}
+export class UploadModule {}

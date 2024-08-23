@@ -1,52 +1,77 @@
-import { Schema, Document, model } from 'mongoose';
+import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 
-// 定义 Nft 的 Schema
-export const NftSchema = new Schema({
-  name: { type: String, required: true }, // NFT 名称
-  imageUrl: { type: String, required: true }, // NFT 图像 URL
-  artist: { type: String, required: true }, // 艺术家名称
-  price: { type: String, required: true }, // 价格，可以根据需要定义为字符串或数字
-  description: { type: String, required: true }, // NFT 描述
-  properties: {
-    // 其他属性，如稀有度和特征
-    rarity: { type: String, required: true }, // 稀有度
-    attributes: [{ type: String, required: true }], // 特征属性列表
-  },
-  onSale: { type: Boolean, default: false }, // 是否正在出售
-  owner: { type: String, required: true }, // 当前所有者
-  recommanded: { type: Boolean, default: false },
-  notable: { type: Boolean, default: false },
-  transactionHistory: [
-    {
-      // 交易历史记录
-      date: { type: Date, default: Date.now }, // 交易日期
-      price: { type: String }, // 交易价格
-      previousOwner: { type: String }, // 前一个所有者
-    },
-  ],
-});
+// 定义 TransactionHistory 子文档 Schema
+@Schema()
+export class TransactionHistory {
+  @Prop({ type: Date, default: Date.now })
+  date: Date;
 
-// 定义 Nft 接口，用于类型检查
-export interface Nft extends Document {
-  name: string;
-  imageUrl: string;
-  artist: string;
+  @Prop({ type: String })
   price: string;
+
+  @Prop({ type: String })
+  previousOwner: string;
+}
+
+// 定义 Nft Schema
+@Schema({ timestamps: true }) // 自动添加 createdAt 和 updatedAt 字段
+export class Nft extends Document {
+  @Prop({ type: Types.ObjectId })
+  _id: Types.ObjectId;
+
+  @Prop({ required: true })
+  name: string;
+
+  @Prop({ required: true })
+  imageUrl: string;
+
+  @Prop({ required: true })
+  artist: string;
+
+  @Prop({ required: true })
+  price: string;
+
+  @Prop({ required: true })
   description: string;
+
+  @Prop({
+    type: {
+      rarity: { type: String, required: true },
+      attributes: [{ type: String, required: true }],
+    },
+  })
   properties: {
     rarity: string;
     attributes: string[];
   };
+
+  @Prop({ default: false })
   onSale: boolean;
+
+  @Prop({ required: true })
   owner: string;
+
+  @Prop({ default: false })
   recommanded: boolean;
+
+  @Prop({ default: false })
   notable: boolean;
-  transactionHistory: Array<{
-    date: Date;
-    price: string;
-    previousOwner: string;
-  }>;
+
+  @Prop([
+    {
+      date: { type: Date, default: Date.now },
+      price: String,
+      previousOwner: String,
+    },
+  ])
+  createdAt?: Date;
+  updatedAt?: Date;
+
+  @Prop({ type: [TransactionHistory] })
+  transactionHistory: TransactionHistory[];
 }
 
-// 导出 Mongoose 模型
-export const NftModel = model<Nft>('Nft', NftSchema);
+export const NftSchema = SchemaFactory.createForClass(Nft);
+export type NftSummary = Pick<Nft, 'id' | 'name' | 'description'>;
+export type NftOwnSummary = Pick<Nft, 'createdAt' | 'name' | 'description'>;

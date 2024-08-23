@@ -3,7 +3,7 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-20 00:56:34
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-23 02:21:53
+ * @LastEditTime: 2024-08-23 22:20:07
  */
 import {
   Controller,
@@ -13,12 +13,12 @@ import {
   Param,
   Delete,
   Put,
+  Query,
 } from '@nestjs/common';
 import { NftsService } from './nfts.service';
 import { CreateNftDto } from './dto/create-nft.dto';
 import { UpdateNftDto } from './dto/update-nft.dto';
-import { Nft } from './nfts.model';
-
+import { Nft, NftSummary } from './nfts.model';
 @Controller('nfts')
 export class NftsController {
   constructor(private readonly nftsService: NftsService) {}
@@ -30,6 +30,14 @@ export class NftsController {
   @Get('notable')
   async getNotableNfts(): Promise<Nft[]> {
     return await this.nftsService.findNotable();
+  }
+
+  @Get('findNftsByIds')
+  async findNftsByIds(
+    @Query('ids') ids: string | string[],
+  ): Promise<NftSummary[]> {
+    const idsArray = Array.isArray(ids) ? ids : ids.split(',');
+    return this.nftsService.findNftsByIds(idsArray);
   }
 
   @Post()
