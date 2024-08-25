@@ -3,7 +3,7 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-20 00:56:34
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-23 22:20:07
+ * @LastEditTime: 2024-08-25 00:55:01
  */
 import {
   Controller,
@@ -39,7 +39,16 @@ export class NftsController {
     const idsArray = Array.isArray(ids) ? ids : ids.split(',');
     return this.nftsService.findNftsByIds(idsArray);
   }
-
+  @Post('makeNftOffer')
+  async makeNftOffer(
+    @Body('buyerAddress') buyerAddress: string,
+    @Body('sellerAddress') sellerAddress: string,
+    @Body('nftId') nftId: string,
+    @Body('price') price: string,
+  ) {
+    await this.nftsService.makeOffer(buyerAddress, sellerAddress, nftId, price);
+    return { message: 'Offer processed successfully' };
+  }
   @Post()
   async create(@Body() createNftDto: CreateNftDto): Promise<Nft> {
     return await this.nftsService.create(createNftDto);

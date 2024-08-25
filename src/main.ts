@@ -3,7 +3,7 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-18 01:38:08
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-23 02:52:35
+ * @LastEditTime: 2024-08-25 01:43:13
  */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -20,7 +20,7 @@ async function bootstrap() {
     res.sendFile(join(__dirname, '..', 'client', 'build', 'index.html'));
   });
   */
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads',
   });
   app.useStaticAssets('public');

@@ -1,6 +1,13 @@
+/*
+ * @Describle:
+ * @Author: actopas <fishmooger@gmail.com>
+ * @Date: 2024-08-20 03:46:54
+ * @LastEditors: actopas
+ * @LastEditTime: 2024-08-24 20:08:29
+ */
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-
+import { NftStatus } from '../types/status.enum';
 // 定义 TransactionHistory 子文档 Schema
 @Schema()
 export class TransactionHistory {
@@ -46,8 +53,8 @@ export class Nft extends Document {
     attributes: string[];
   };
 
-  @Prop({ default: false })
-  onSale: boolean;
+  @Prop({ default: 0 })
+  status: NftStatus;
 
   @Prop({ required: true })
   owner: string;
@@ -73,5 +80,9 @@ export class Nft extends Document {
 }
 
 export const NftSchema = SchemaFactory.createForClass(Nft);
+export const NftModel = {
+  name: Nft.name, // 这个名字通常和类名一致
+  schema: NftSchema,
+};
 export type NftSummary = Pick<Nft, 'id' | 'name' | 'description'>;
 export type NftOwnSummary = Pick<Nft, 'createdAt' | 'name' | 'description'>;
