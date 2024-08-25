@@ -3,7 +3,7 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-20 00:54:16
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-25 01:22:20
+ * @LastEditTime: 2024-08-26 02:42:15
  */
 import {
   Injectable,
@@ -17,11 +17,13 @@ import { CreateNftDto } from './dto/create-nft.dto';
 import { UpdateNftDto } from './dto/update-nft.dto';
 import { Account } from '../accounts/accounts.model';
 import { NftStatus } from '../types/status.enum';
+import { Web3Service } from './web3.service';
 @Injectable()
 export class NftsService {
   constructor(
     @InjectModel('Nft') private readonly nftModel: Model<Nft>,
     @InjectModel('Account') private readonly accountModel: Model<Account>, // 注入 Account 模型
+    private readonly web3Service: Web3Service,
   ) {}
 
   async create(createNftDto: CreateNftDto): Promise<Nft> {
@@ -31,7 +33,12 @@ export class NftsService {
       _id: new Types.ObjectId(), // 手动生成 ObjectId
     });
     const createdNft = await newNft.save(); // 确保在保存后 `_id` 已生成
-
+    // 铸造NFT到区块链
+    await this.web3Service.mintNFT(
+      createdNft.owner,
+      createdNft.tokenURI,
+      createdNft.owner,
+    );
     // 2. 获取创建者的账号信息
     const account = await this.accountModel
       .findOne({ address: createNftDto.owner })
@@ -113,7 +120,7 @@ export class NftsService {
       .find({ notable: true, status: NftStatus.OnSale })
       .exec();
   }
-  async makeOffer(
+  async purchaseNFT(
     buyerAddress: string,
     sellerAddress: string,
     nftId: string,
@@ -126,6 +133,12 @@ export class NftsService {
       .findOne({ address: sellerAddress })
       .exec();
     const nft = await this.nftModel.findById(new Types.ObjectId(nftId)).exec();
+    await this.web3Service.purchaseNFT(
+      buyerAddress,
+      sellerAddress,
+      nft.tokenId,
+      price,
+    );
     if (!buyer || !seller || !nft) {
       throw new NotFoundException('Buyer, seller or NFT not found');
     }
