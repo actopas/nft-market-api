@@ -3,7 +3,7 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-20 00:54:16
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-26 02:42:15
+ * @LastEditTime: 2024-08-27 01:18:02
  */
 import {
   Injectable,
@@ -33,32 +33,39 @@ export class NftsService {
       _id: new Types.ObjectId(), // 手动生成 ObjectId
     });
     const createdNft = await newNft.save(); // 确保在保存后 `_id` 已生成
-    // 铸造NFT到区块链
-    await this.web3Service.mintNFT(
+    console.log(createdNft);
+    // 2. 铸造NFT到区块链，并获取生成的 tokenId
+    const mintResult = await this.web3Service.mintNFT(
       createdNft.owner,
       createdNft.tokenURI,
-      createdNft.owner,
     );
-    // 2. 获取创建者的账号信息
+    console.log(mintResult.events.Transfer.returnValues);
+    const tokenId = mintResult.events.Transfer.returnValues.tokenId;
+    createdNft.tokenId = tokenId;
+    await createdNft.save(); // 保存更新后的 NFT
+
+    // 3. 获取创建者的账号信息
     const account = await this.accountModel
-      .findOne({ address: createNftDto.owner })
+      .findOne({ address: createdNft.owner })
       .exec();
-    console.log(account, createNftDto, createdNft, 'account');
+
     if (!account) {
       throw new NotFoundException(
-        `Account with address ${createNftDto.owner} not found`,
+        `Account with address ${createdNft.owner} not found`,
       );
     }
-    console.log(createdNft);
-    // 3. 添加 NFT 的 `_id` 到 `createdNfts` 和 `ownedNfts` 数组
+
+    // 4. 添加 NFT 的 `_id` 到 `createdNfts` 和 `ownedNfts` 数组
     account.createdNfts.push(createdNft._id);
     account.ownedNfts.push(createdNft._id);
 
-    // 4. 保存更新后的 Account
+    // 5. 保存更新后的 Account
     await account.save();
+
     if (!createdNft._id) {
       throw new Error('Failed to generate _id for created NFT');
     }
+
     return createdNft;
   }
 
@@ -81,12 +88,13 @@ export class NftsService {
     const objectIds = ids.map((id) => new Types.ObjectId(id));
     const nfts = await this.nftModel
       .find({ _id: { $in: objectIds } })
-      .select('_id name description status')
+      .select('_id tokenId name description status')
       .exec();
     console.log(nfts, 'nfts');
     return nfts.map((nft) => {
       return {
         id: nft._id.toString(),
+        tokenId: nft.tokenId!,
         name: nft.name!,
         description: nft.description!,
         status: nft.status,

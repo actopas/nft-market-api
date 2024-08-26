@@ -3,7 +3,7 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-20 03:46:54
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-24 20:08:29
+ * @LastEditTime: 2024-08-26 21:43:19
  */
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
@@ -29,6 +29,12 @@ export class Nft extends Document {
 
   @Prop({ required: true })
   name: string;
+
+  @Prop({ required: false })
+  tokenId?: string;
+
+  @Prop({ required: false })
+  tokenURI?: string;
 
   @Prop({ required: true })
   imageUrl: string;
@@ -84,5 +90,5 @@ export const NftModel = {
   name: Nft.name, // 这个名字通常和类名一致
   schema: NftSchema,
 };
-export type NftSummary = Pick<Nft, 'id' | 'name' | 'description'>;
+export type NftSummary = Pick<Nft, 'id' | 'tokenId' | 'name' | 'description'>;
 export type NftOwnSummary = Pick<Nft, 'createdAt' | 'name' | 'description'>;

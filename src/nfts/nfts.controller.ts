@@ -3,7 +3,7 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-20 00:56:34
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-26 02:44:55
+ * @LastEditTime: 2024-08-26 20:25:16
  */
 import {
   Controller,
@@ -64,21 +64,7 @@ export class NftsController {
 
   @Post()
   async create(@Body() createNftDto: CreateNftDto): Promise<Nft> {
-    const accounts = await this.web3Service.getAccounts();
-    const fromAddress = accounts[0]; // 使用第一个账户作为发件人
-
-    // 首先在区块链上铸造NFT
-    const mintResult = await this.web3Service.mintNFT(
-      createNftDto.recipient,
-      createNftDto.tokenURI,
-      fromAddress,
-    );
-
-    // 然后在数据库中创建NFT记录
-    return await this.nftsService.create({
-      ...createNftDto,
-      tokenId: mintResult.events.Transfer.returnValues.tokenId, // 使用区块链返回的tokenId
-    });
+    return await this.nftsService.create(createNftDto);
   }
 
   @Get()

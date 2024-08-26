@@ -6,11 +6,29 @@ import SimpleNFT from './contract/SimpleNFT.json';
 export class Web3Service {
   private web3: Web3;
   private contract: any;
+  private fromAddress: string;
 
   constructor() {
+    console.log(
+      process.env.WEB3_PROVIDER_URL,
+      process.env.NFT_CONTRACT_ADDRESS,
+    );
     this.web3 = new Web3(process.env.WEB3_PROVIDER_URL);
     const contractAddress = process.env.NFT_CONTRACT_ADDRESS;
     this.contract = new this.web3.eth.Contract(SimpleNFT.abi, contractAddress);
+    const privateKey = process.env.PRIVATE_KEY;
+    if (privateKey) {
+      const account = this.web3.eth.accounts.privateKeyToAccount(privateKey);
+      this.web3.eth.accounts.wallet.add(account);
+      this.fromAddress = account.address;
+      this.web3.eth.getBalance(this.fromAddress).then((balance) => {
+        console.log(
+          'Account balance:',
+          this.web3.utils.fromWei(balance, 'ether'),
+          'ETH',
+        );
+      });
+    }
   }
 
   // 获取合约名称
@@ -24,14 +42,12 @@ export class Web3Service {
   }
 
   // 铸造NFT
-  async mintNFT(
-    recipient: string,
-    tokenURI: string,
-    fromAddress: string,
-  ): Promise<any> {
-    return await this.contract.methods
+  async mintNFT(recipient: string, tokenURI: string): Promise<any> {
+    console.log(recipient, this.fromAddress, 'res');
+    const result = await this.contract.methods
       .mintNFT(recipient, tokenURI)
-      .send({ from: fromAddress });
+      .send({ from: this.fromAddress });
+    return result;
   }
 
   // 购买NFT并完成交易
