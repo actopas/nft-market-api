@@ -3,7 +3,7 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-20 00:54:16
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-27 01:18:02
+ * @LastEditTime: 2024-08-27 05:14:28
  */
 import {
   Injectable,
@@ -143,8 +143,8 @@ export class NftsService {
     const nft = await this.nftModel.findById(new Types.ObjectId(nftId)).exec();
     await this.web3Service.purchaseNFT(
       buyerAddress,
-      sellerAddress,
       nft.tokenId,
+      sellerAddress,
       price,
     );
     if (!buyer || !seller || !nft) {

@@ -3,7 +3,7 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-20 00:56:34
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-26 20:25:16
+ * @LastEditTime: 2024-08-27 05:08:28
  */
 import {
   Controller,
@@ -46,7 +46,7 @@ export class NftsController {
     return this.nftsService.findNftsByIds(idsArray);
   }
 
-  @Post('purchase')
+  @Post('purchaseNFT')
   async purchaseNFT(
     @Body('buyerAddress') buyerAddress: string,
     @Body('sellerAddress') sellerAddress: string,
