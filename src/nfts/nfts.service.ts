@@ -3,7 +3,7 @@
  * @Author: actopas <fishmooger@gmail.com>
  * @Date: 2024-08-20 00:54:16
  * @LastEditors: actopas
- * @LastEditTime: 2024-08-27 05:14:28
+ * @LastEditTime: 2024-08-27 16:42:49
  */
 import {
   Injectable,
@@ -141,12 +141,7 @@ export class NftsService {
       .findOne({ address: sellerAddress })
       .exec();
     const nft = await this.nftModel.findById(new Types.ObjectId(nftId)).exec();
-    await this.web3Service.purchaseNFT(
-      buyerAddress,
-      nft.tokenId,
-      sellerAddress,
-      price,
-    );
+
     if (!buyer || !seller || !nft) {
       throw new NotFoundException('Buyer, seller or NFT not found');
     }
@@ -165,6 +160,7 @@ export class NftsService {
     };
     nft.status = 0;
     nft.transactionHistory.push(transaction);
+    nft.owner = buyerAddress;
 
     seller.transactions.push(nft._id);
     buyer.transactions.push(nft._id);
